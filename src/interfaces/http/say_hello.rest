@@ -1,0 +1,63 @@
+###
+# Test 1: Basic usage
+POST http://localhost:8000/say_hello
+Content-Type: application/json
+
+{
+  "first_name": "Alice",
+  "last_name": "Wonderland"
+}
+
+###
+# Test 2: Another name
+POST http://localhost:8000/say_hello
+Content-Type: application/json
+
+{
+  "first_name": "Bob",
+  "last_name": "Marley"
+}
+
+###
+# Test 3: Missing last_name (will likely raise a validation error if typed)
+POST http://localhost:8000/say_hello
+Content-Type: application/json
+
+{
+  "first_name": "Charlie"
+}
+
+###
+# Test 4: Health check
+GET http://localhost:8000/health
+Content-Type: application/json
+
+###
+# Test Azure App Service (Local Development):
+# 1. Start the application locally
+# 2. Run the tests below
+
+POST http://localhost:8000/say_hello
+Content-Type: application/json
+
+{
+    "first_name": "John",
+    "last_name": "Doe"
+}
+
+###
+# Test Azure App Service (Production):
+# Replace with your actual Azure App Service URL
+
+POST https://ovo-kenan-boilerplate-dev-app.azurewebsites.net/say_hello
+Content-Type: application/json
+
+{
+    "first_name": "John",
+    "last_name": "Doe"
+}
+
+###
+# Health check for Azure App Service
+
+GET https://ovo-kenan-boilerplate-dev-app.azurewebsites.net/health

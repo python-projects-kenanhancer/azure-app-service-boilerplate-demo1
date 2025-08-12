@@ -1,0 +1,24 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Debug Cloud Function",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "functions_framework",
+      "args": [
+        "--source=${relativeFile}",
+        "--target=${fileBasenameNoExtension}",
+        "--debug",
+        "--port=8080"
+      ],
+      "console": "integratedTerminal",
+      "justMyCode": true,
+      "cwd": "${workspaceFolder}",
+      "env": {
+        "PYTHONPATH": "${workspaceFolder}/src",
+        "envFile": "${workspaceFolder}/.env"
+      }
+    }
+  ]
+}

@@ -1,0 +1,3 @@
+from .inject_settings_from_azure_keyvault_env import inject_settings_from_azure_keyvault_env
+
+__all__ = ["inject_settings_from_azure_keyvault_env"]

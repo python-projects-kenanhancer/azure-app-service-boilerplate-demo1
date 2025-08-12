@@ -1,0 +1,47 @@
+repos:
+  - repo: local
+    hooks:
+      - id: black
+        name: black
+        entry: uv run black
+        language: system
+        types: [python]
+      - id: isort
+        name: isort
+        entry: uv run isort
+        language: system
+        args: [--profile, black]
+        types: [python]
+      - id: ruff
+        name: ruff
+        entry: uv run ruff check
+        language: system
+        args: [--fix]
+        types: [python]
+      - id: end-of-file-fixer
+        name: end-of-file-fixer
+        entry: uv run end-of-file-fixer
+        language: system
+        types: [text]
+      - id: trailing-whitespace
+        name: trailing-whitespace
+        entry: uv run trailing-whitespace-fixer
+        language: system
+        types: [text]
+      - id: check-yaml
+        name: check-yaml
+        entry: uv run check-yaml
+        language: system
+        files: \.(yml|yaml)$
+      - id: pretty-format-json
+        name: pretty-format-json
+        entry: uv run pretty-format-json
+        language: system
+        args: ["--autofix", "--indent", "2"]
+        files: \.(json)$
+        exclude: '^\.vscode/'
+      - id: mdformat
+        name: mdformat
+        entry: uv run mdformat
+        language: system
+        files: \.(md|markdown)$

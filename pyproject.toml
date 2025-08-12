@@ -1,0 +1,129 @@
+# Core project metadata and dependencies
+[project]
+name = "ovo_kenan_boilerplate_demo1"
+version = "0.1.0"
+description = "Azure App Service Python Application"
+authors = [
+    { name = "Kenan Hancer", email = "kenan.hancer@ovo.com" }
+]
+readme = "README.md"
+requires-python = ">=3.12.7"
+dependencies = [
+    "flask>=3.0.0",
+    "azure-keyvault-secrets>=4.7.0",
+    "azure-storage-blob>=12.19.0",
+    "injector>=0.22.0",
+    "pydantic>=2.10.5",
+    "pydantic-settings>=2.7.1",
+    "python-dotenv>=1.0.1",
+    "pyyaml>=6.0.2",
+    "azure-identity>=1.24.0",
+    "google-cloud-secret-manager>=2.24.0",
+    "google-cloud-storage>=3.2.0",
+    "cloudevents>=1.12.0",
+    "fastapi>=0.116.1",
+    "uvicorn>=0.35.0",
+    "psutil>=5.9.0",
+    "pyjwt>=2.8.0",
+    "redis>=5.0.0",
+    "sqlalchemy>=2.0.0",
+    "psycopg2-binary>=2.9.0",
+]
+
+# Development dependencies group
+[dependency-groups]
+dev = [
+    "black>=24.10.0",
+    "isort>=5.13.2",
+    "mdformat>=0.7.21",
+    "pre-commit>=4.0.1",
+    "pre-commit-hooks>=5.0.0",
+    "pytest>=8.3.4",
+    "pytest-xdist>=3.6.1",
+    "ruff>=0.9.1",
+]
+
+[project.scripts]
+setup = "scripts.setup:setup"
+cleanup = "scripts.cleanup:cleanup"
+
+# Build system configuration
+[build-system]
+requires = ["hatchling"] # Build dependencies
+build-backend = "hatchling.build" # Build backend to use
+
+# Hatch-specific build configuration
+[tool.hatch.build.targets.wheel]
+packages = ["src"] # Source code location
+
+# Testing configuration
+[tool.pytest.ini_options]
+pythonpath = ["./src"] # Where to find source code
+testpaths = ["tests"] # Where to find tests
+norecursedirs = [".venv", ".pytest_cache", "__pycache__", ".vscode"] # Directories to ignore
+addopts = "-n 4" # Pytest options
+# env = []
+
+# Code formatting configuration
+[tool.black]
+line-length = 130
+target-version = ["py311"]
+exclude = '''
+/(
+    \.git
+  | \.venv
+  | \.mypy_cache
+  | \.pytest_cache
+  | __pycache__
+  | .vscode
+  | .idea
+  | build
+  | dist
+  | migrations
+  | .tox
+  | .eggs
+  | .git
+  | .hg
+  | .nox
+  | .venv
+)/
+'''
+
+# Import sorting configuration
+[tool.isort]
+profile = "black"
+line_length = 130
+known_first_party = ["src"]
+multi_line_output = 3
+include_trailing_comma = true
+split_on_trailing_comma = true
+force_grid_wrap = 0
+use_parentheses = true
+ensure_newline_before_comments = true
+
+# Linting configuration
+[tool.ruff]
+line-length = 130
+
+# Move fixable configurations to lint section
+[tool.ruff.lint]
+select = ["F", "E", "W", "C90"]
+fixable = ["F401", "F841"]
+ignore = ["E501", "F403", "F405"]  # Disable line-length, F403 and F405 to ignore list
+exclude = [
+    ".git",
+    ".venv",
+    "__pycache__",
+    "build",
+    "dist",
+    "migrations",
+    "tests",
+    ".pytest_cache",
+    ".vscode",
+    ".idea",
+    ".tox",
+    ".eggs",
+    ".hg",
+    ".mypy_cache",
+    ".nox",
+]

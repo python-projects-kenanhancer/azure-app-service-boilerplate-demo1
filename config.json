@@ -1,0 +1,23 @@
+{
+    "project_env": "local",
+    "default_name": "World",
+    "greeting_type": "time_based",
+    "greeting_language": "en",
+    "web_framework": "flask",
+    "host": "0.0.0.0",
+    "port": 8000,
+    "debug": true,
+    "logger_name": "azure_app_service",
+    "redis_host": "localhost",
+    "redis_port": 6379,
+    "redis_password": "",
+    "redis_db": 0,
+    "db_host": "localhost",
+    "db_port": 5432,
+    "db_name": "azure_app_service_db",
+    "db_user": "app_user",
+    "db_password": "app_password",
+    "jwt_secret": "your-super-secret-jwt-key-change-in-production",
+    "jwt_algorithm": "HS256",
+    "jwt_expiry_hours": 24
+}
