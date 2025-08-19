@@ -52,7 +52,7 @@ def typed_cloud_event_middleware(context: Context, next: Next):
     # If it's not a CloudEvent type after conversion, raise error
     if not isinstance(maybe_cloud_event, CloudEvent):
         raise TypeError(
-            f"Expected first argument to be either {annotated_type.__name__} " f"or CloudEvent, but got {type(maybe_cloud_event)}"
+            f"Expected first argument to be either {annotated_type.__name__} or CloudEvent, but got {type(maybe_cloud_event)}"
         )
 
     # Convert CloudEvent to typed object

@@ -8,5 +8,4 @@ class LoggingModule(Module):
     @singleton
     @provider
     def provide_logger_strategy(self, settings: Settings) -> LoggerStrategy:
-
         return DefaultLoggerStrategy(settings.logger_name)

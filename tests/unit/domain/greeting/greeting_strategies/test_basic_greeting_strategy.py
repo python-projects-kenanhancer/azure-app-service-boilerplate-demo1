@@ -2,7 +2,6 @@ from domain import BasicGreetingStrategy
 
 
 class TestBasicGreetingStrategy:
-
     def test_get_greeting_prefix(self):
         greeting_strategy = BasicGreetingStrategy()
 

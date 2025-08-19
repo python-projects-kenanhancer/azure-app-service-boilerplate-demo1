@@ -19,7 +19,6 @@ class TestGreetingService:
         return Injector([GreetingModule])
 
     def test_get_greeting_message_basic_en(self, injector: Injector):
-
         greeting_service = injector.get(GreetingService)
 
         first_name = "Alice"

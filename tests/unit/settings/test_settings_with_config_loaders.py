@@ -6,10 +6,8 @@ from infrastructure import GcpStorageEnvConfigLoaderArgs, Settings, SettingsModu
 
 
 class TestSettingsWithConfigLoaders:
-
     @pytest.fixture
     def settings(self) -> Settings:
-
         env_file = ".env.say_hello"
 
         bucket_name = "app-config-boilerplate"
@@ -25,7 +23,6 @@ class TestSettingsWithConfigLoaders:
 
     @pytest.fixture
     def expected_settings(self) -> Settings:
-
         return Settings(
             default_name="World",
             greeting_type=GreetingType.TIME_BASED,

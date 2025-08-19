@@ -1,9 +1,8 @@
 import os
 from functools import wraps
-from typing import Any, Callable, Dict, Type
+from typing import Any, Callable, Type
 
 from azure.identity import DefaultAzureCredential
-from azure.keyvault.secrets import SecretClient
 
 from ...config_providers import AzureKeyVaultConfigProvider
 

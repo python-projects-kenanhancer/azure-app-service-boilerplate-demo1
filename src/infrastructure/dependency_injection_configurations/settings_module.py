@@ -1,7 +1,4 @@
-from injector import (
-    Module,
-    provider,
-)
+from injector import Module, provider
 
 from ..config_loaders import ConfigLoaderArgs, load_settings_from_config_loader
 from ..models.settings import Settings

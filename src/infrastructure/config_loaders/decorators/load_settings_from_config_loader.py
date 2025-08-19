@@ -1,8 +1,6 @@
 from typing import Type
 
-from ..config_loader_args import (
-    ConfigLoaderArgs,
-)
+from ..config_loader_args import ConfigLoaderArgs
 from ..config_loader_factory import ConfigLoaderFactory
 from .base_inject_settings import TSettings
 

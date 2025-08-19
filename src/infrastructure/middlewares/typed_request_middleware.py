@@ -27,13 +27,13 @@ def _extract_fastapi_request_data(request: FastAPIRequest) -> tuple[Dict[str, An
     # Extract query parameters
     try:
         query_data = dict(request.query_params) if hasattr(request, "query_params") else {}
-    except:
+    except Exception:
         query_data = {}
 
     # Extract headers
     try:
         header_data = dict(request.headers) if hasattr(request, "headers") else {}
-    except:
+    except Exception:
         header_data = {}
 
     return json_data, query_data, header_data
@@ -61,7 +61,7 @@ def _extract_json_from_fastapi_request(request: FastAPIRequest) -> Dict[str, Any
                     return json.loads(parsed_body_data.decode("utf-8"))
                 elif isinstance(parsed_body_data, str):
                     return json.loads(parsed_body_data)
-        except:
+        except Exception:
             pass
 
     # Fallback: try to get JSON from request object
@@ -70,7 +70,7 @@ def _extract_json_from_fastapi_request(request: FastAPIRequest) -> Dict[str, Any
             return request._json
         elif hasattr(request, "json"):
             return request.json()
-    except:
+    except Exception:
         pass
 
     return {}
@@ -166,7 +166,7 @@ def typed_request_middleware(context: Context, next: Next):
     # Extract request data using the encapsulated methods
     try:
         json_data, query_data, header_data = _extract_request_data(maybe_request)
-    except Exception as e:
+    except Exception:
         # If extraction fails, use empty data
         json_data, query_data, header_data = {}, {}, {}
 

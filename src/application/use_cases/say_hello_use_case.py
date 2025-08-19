@@ -1,10 +1,7 @@
 from injector import inject
 
 # Domain models and services
-from domain import (
-    GreetingService,
-    PersonName,
-)
+from domain import GreetingService, PersonName
 from infrastructure import LoggerStrategy, Settings
 
 # Application-layer DTOs
@@ -32,7 +29,6 @@ class SayHelloUseCase:
         self.greeting_service = greeting_service
 
     def execute(self, request_app: GreetingAppRequest) -> GreetingAppResponse:
-
         person_name = PersonName.model_validate(request_app.to_dict())
 
         greeting_type = self.say_hello_settings.greeting_type

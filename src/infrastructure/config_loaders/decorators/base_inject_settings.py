@@ -37,7 +37,6 @@ def inject_settings(
     """
 
     def decorator(func: Callable[P, R]) -> Callable[P, R]:
-
         # 1) Inspect the function signature & type hints
         sig = inspect.signature(func)
         hints = get_type_hints(func, include_extras=True)
@@ -45,7 +44,7 @@ def inject_settings(
         # 2) Find which parameter is named 'settings' (or whichever logic you prefer)
         settings_param = sig.parameters.get(param_name, None)
         if settings_param is None:
-            raise TypeError(f"inject_settings could not find a parameter named 'settings' " f"in the function {func.__name__}.")
+            raise TypeError(f"inject_settings could not find a parameter named 'settings' in the function {func.__name__}.")
 
         # 3) Resolve the annotation for 'settings'
         annotated_type = hints.get(param_name, settings_param.annotation)

@@ -2,6 +2,8 @@ from typing import overload
 
 from .config_loader import ConfigLoader
 from .config_loader_args import (
+    AzureKeyVaultEnvConfigLoaderArgs,
+    AzureStorageEnvConfigLoaderArgs,
     ConfigLoaderArgs,
     EnvConfigLoaderArgs,
     GcpSecretEnvConfigLoaderArgs,
@@ -10,17 +12,15 @@ from .config_loader_args import (
     GcpStorageEnvConfigLoaderArgs,
     GcpStorageJsonConfigLoaderArgs,
     GcpStorageYamlConfigLoaderArgs,
-    AzureKeyVaultEnvConfigLoaderArgs,
-    AzureStorageEnvConfigLoaderArgs,
     JsonConfigLoaderArgs,
     YamlConfigLoaderArgs,
 )
 from .config_providers import (
-    FileConfigProvider, 
-    GcpSecretConfigProvider, 
-    GcpStorageConfigProvider,
     AzureKeyVaultConfigProvider,
-    AzureStorageConfigProvider
+    AzureStorageConfigProvider,
+    FileConfigProvider,
+    GcpSecretConfigProvider,
+    GcpStorageConfigProvider,
 )
 from .env_config_loader import EnvConfigLoader
 from .env_config_processors import DefaultEnvConfigProcessor
@@ -119,20 +119,16 @@ class ConfigLoaderFactory:
             return YamlConfigLoader(config_provider=config_provider)
         elif isinstance(config_loader_args, AzureKeyVaultEnvConfigLoaderArgs):
             import os
+
             vault_url = os.getenv(config_loader_args.vault_url_env_var)
-            secret_name = os.getenv(config_loader_args.secret_name_env_var)
-            config_provider = AzureKeyVaultConfigProvider(
-                vault_url=vault_url, credential=config_loader_args.credential
-            )
+            config_provider = AzureKeyVaultConfigProvider(vault_url=vault_url, credential=config_loader_args.credential)
             env_processor = DefaultEnvConfigProcessor()
             return EnvConfigLoader(config_provider=config_provider, env_processor=env_processor)
         elif isinstance(config_loader_args, AzureStorageEnvConfigLoaderArgs):
             import os
+
             account_url = os.getenv(config_loader_args.account_url_env_var)
-            blob_path = os.getenv(config_loader_args.blob_path_env_var)
-            config_provider = AzureStorageConfigProvider(
-                account_url=account_url, credential=config_loader_args.credential
-            )
+            config_provider = AzureStorageConfigProvider(account_url=account_url, credential=config_loader_args.credential)
             env_processor = DefaultEnvConfigProcessor()
             return EnvConfigLoader(config_provider=config_provider, env_processor=env_processor)
         elif isinstance(config_loader_args, EnvConfigLoaderArgs):

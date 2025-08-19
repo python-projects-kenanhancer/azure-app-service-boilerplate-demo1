@@ -1,8 +1,4 @@
-from injector import (
-    Binder,
-    Module,
-    singleton,
-)
+from injector import Binder, Module, singleton
 
 from domain import BasicGreetingStrategy, GreetingType, HolidayGreetingStrategy, TimeBasedGreetingStrategy
 

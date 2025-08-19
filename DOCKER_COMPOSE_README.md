@@ -40,22 +40,24 @@ docker-compose down -v
 
 ## 📊 Services Overview
 
-| Service             | Port | Description              | Web UI                 |
+| Service | Port | Description | Web UI |
 | ------------------- | ---- | ------------------------ | ---------------------- |
-| **PostgreSQL**      | 5432 | Main database            | pgAdmin (8080)         |
-| **Redis**           | 6379 | Cache and session store  | Redis Commander (8081) |
-| **pgAdmin**         | 8080 | PostgreSQL web interface | http://localhost:8080  |
-| **Redis Commander** | 8081 | Redis web interface      | http://localhost:8081  |
+| **PostgreSQL** | 5432 | Main database | pgAdmin (8080) |
+| **Redis** | 6379 | Cache and session store | Redis Commander (8081) |
+| **pgAdmin** | 8080 | PostgreSQL web interface | http://localhost:8080 |
+| **Redis Commander** | 8081 | Redis web interface | http://localhost:8081 |
 
 ## 🔧 Configuration
 
 ### PostgreSQL
+
 - **Database**: `azure_app_service_db`
 - **Username**: `app_user`
 - **Password**: `app_password`
 - **Connection String**: `postgresql://app_user:app_password@localhost:5432/azure_app_service_db`
 
 ### Redis
+
 - **Host**: `localhost`
 - **Port**: `6379`
 - **Password**: None (development)
@@ -64,11 +66,13 @@ docker-compose down -v
 ### Web Interfaces
 
 #### pgAdmin
+
 - **URL**: http://localhost:8080
 - **Email**: `admin@azure-app-service.com`
 - **Password**: `admin123`
 
 #### Redis Commander
+
 - **URL**: http://localhost:8081
 - **Username**: `admin`
 - **Password**: `admin123`
@@ -134,6 +138,7 @@ docker-compose stats
 - No authentication for Redis
 
 For production:
+
 - Use strong passwords
 - Enable SSL/TLS
 - Use secrets management
@@ -145,27 +150,30 @@ For production:
 ### Common Issues
 
 1. **Port already in use**
+
    ```bash
    # Check what's using the port
    lsof -i :5432
    lsof -i :6379
-   
+
    # Stop conflicting services
    sudo systemctl stop postgresql
    sudo systemctl stop redis
    ```
 
-2. **Permission denied**
+1. **Permission denied**
+
    ```bash
    # Fix volume permissions
    sudo chown -R $USER:$USER ./data
    ```
 
-3. **Container won't start**
+1. **Container won't start**
+
    ```bash
    # Check logs
    docker-compose logs postgres
-   
+
    # Remove and recreate
    docker-compose down -v
    docker-compose up -d

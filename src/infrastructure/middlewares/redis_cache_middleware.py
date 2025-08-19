@@ -84,13 +84,16 @@ def _get_redis_client(context: Context, logger: LoggerStrategy) -> Optional[Any]
         try:
             redis_client.ping()
             return redis_client
-        except:
+        except Exception:
             logger.warning("[REDIS_CACHE] Existing Redis client connection failed")
 
     # Create new Redis client
     try:
         # In production, get these from environment variables or configuration
-        redis_client = redis.Redis(
+        if not REDIS_AVAILABLE:
+            return None
+
+        redis_client = redis.Redis(  # type: ignore[attr-defined]
             host="localhost",  # Replace with your Redis host
             port=6379,  # Replace with your Redis port
             db=0,  # Replace with your Redis database

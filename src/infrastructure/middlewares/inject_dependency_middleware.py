@@ -4,7 +4,6 @@ from ..decorators.pipeline_decorator import Context, Next
 
 
 def inject_dependency_middleware(context: Context, next: Next):
-
     func = context.func
     original_args = context.args
     original_kwargs = dict(context.kwargs)  # make a copy so we can modify safely

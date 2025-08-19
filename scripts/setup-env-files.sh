@@ -11,7 +11,7 @@ echo "🔧 Setting up environment files..."
 create_env_file() {
     local template_file=$1
     local env_file=$2
-    
+
     if [ ! -f "$env_file" ]; then
         echo "📝 Creating $env_file from template..."
         cp "$template_file" "$env_file"
@@ -40,4 +40,3 @@ echo "   - pgAdmin: http://localhost:8080"
 echo "   - Redis Commander: http://localhost:8081"
 echo ""
 echo "🔒 Security note: Add .env.* files to .gitignore to keep credentials secure"
-

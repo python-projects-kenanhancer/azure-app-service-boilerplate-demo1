@@ -1,18 +1,7 @@
 import functools
 import inspect
 from dataclasses import dataclass
-from typing import (
-    Any,
-    Callable,
-    Concatenate,
-    ParamSpec,
-    Protocol,
-    TypeGuard,
-    TypeVar,
-    Union,
-    cast,
-    runtime_checkable,
-)
+from typing import Any, Callable, Concatenate, ParamSpec, Protocol, TypeGuard, TypeVar, Union, cast, runtime_checkable
 
 
 @dataclass
@@ -96,7 +85,6 @@ def is_pipeline_decorator(item: Any) -> TypeGuard[PipelineFunction]:
 def create_middleware_from_pipeline(
     pipeline_decorator: PipelineDecorator,
 ) -> MiddlewareFunc:
-
     def middleware(context: Context, next: Next, **kwargs: Any) -> Any:
         @pipeline_decorator
         @functools.wraps(context.func)
@@ -113,7 +101,6 @@ def create_middleware_from_pipeline(
 
 
 def create_middleware_from_class(cls: Any) -> MiddlewareFunc:
-
     def resolver(context: Context, next: Next, **kwargs: Any) -> Any:
         injector = context.kwargs.get("injector")
         if not injector:
@@ -231,7 +218,6 @@ def create_class_pipeline(middlewares: list[MiddlewareFunc]) -> Callable[[type],
 
 
 def pipeline(*items: PipelineItem) -> PipelineFunction:
-
     filtered_items = [item for item in items if item not in (None, "")]
     middlewares: list[MiddlewareFunc] = []
 

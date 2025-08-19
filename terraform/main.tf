@@ -55,7 +55,7 @@ resource "azurerm_linux_web_app" "main" {
     application_stack {
       python_version = var.app_service_config.python_version
     }
-    
+
     app_command_line = var.app_service_config.startup_command
   }
 

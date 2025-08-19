@@ -42,20 +42,20 @@ def setup() -> None:
     configure_logging(log_file="setup.log")
     try:
         logging.info("Starting Azure App Service project setup...")
-        
+
         # Install dependencies with uv
         run_command(["uv", "sync"])
-        
+
         # Install pre-commit hooks
         run_command(["uv", "run", "pre-commit", "install", "--overwrite"])
-        
+
         # Generate requirements.txt for Azure App Service
         run_command(["uv", "pip", "compile", "pyproject.toml", "-o", "requirements.txt"])
-        
+
         logging.info("Azure App Service setup completed successfully!")
         logging.info("You can now run the application with: python -m src.main")
         logging.info("Or deploy to Azure with: ./scripts/deploy_azure.sh")
-        
+
     except subprocess.CalledProcessError:
         logging.error("Setup failed. See the log file for details.")
         sys.exit(1)

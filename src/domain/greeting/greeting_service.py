@@ -13,7 +13,6 @@ class GreetingService:
         self._injector = injector
 
     def get_greeting_message(self, person_name: PersonName, greeting_type: GreetingType, greeting_language: GreetingLanguage):
-
         # 1) Create the base greeting strategy (in English)
         greeting_strategy = cast(GreetingStrategy, self._injector.get(greeting_type.value))
 

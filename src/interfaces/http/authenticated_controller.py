@@ -3,7 +3,7 @@
 from injector import inject, singleton
 
 from infrastructure import LoggerStrategy, WebAppInterface, authenticated_pipeline
-from interfaces import GreetingHttpRequest, GreetingHttpResponse
+from interfaces import GreetingHttpRequest
 
 
 @singleton

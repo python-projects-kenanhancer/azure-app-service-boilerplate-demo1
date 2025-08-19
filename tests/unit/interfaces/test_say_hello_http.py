@@ -67,7 +67,6 @@ class TestSayHelloHttp:
         datetime_patch,
         expected_keywords,
     ):
-
         mock_injector.binder.bind(
             Settings,
             Settings(
@@ -128,7 +127,6 @@ class TestSayHelloHttp:
         )
 
         with patch("domain.greeting.greeting_strategies.time_based_greeting_strategy.datetime") as mock_datetime:
-
             mock_now = datetime(2024, 12, 10, 8, 0, 0)
             mock_datetime.datetime.now.return_value = mock_now
 

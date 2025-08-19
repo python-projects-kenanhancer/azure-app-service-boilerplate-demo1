@@ -1,7 +1,6 @@
 """Error handling middleware for comprehensive error handling and logging."""
 
 import traceback
-from typing import Any
 
 from ..decorators.pipeline_decorator import Context, Next
 from ..logger.logger_strategies.logger_strategy import LoggerStrategy

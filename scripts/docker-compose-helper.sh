@@ -50,16 +50,16 @@ start_services() {
     print_header "Starting Azure App Service Development Environment"
     check_docker
     check_docker_compose
-    
+
     print_status "Starting PostgreSQL, Redis, and web interfaces..."
     docker-compose up -d
-    
+
     print_status "Waiting for services to be ready..."
     sleep 10
-    
+
     print_status "Checking service health..."
     check_health
-    
+
     print_header "Services Started Successfully"
     print_status "PostgreSQL: localhost:5432"
     print_status "Redis: localhost:6379"
@@ -85,14 +85,14 @@ restart_services() {
 # Function to check service health
 check_health() {
     print_header "Checking Service Health"
-    
+
     # Check PostgreSQL
     if docker-compose exec -T postgres pg_isready -U app_user > /dev/null 2>&1; then
         print_status "PostgreSQL: ✅ Healthy"
     else
         print_warning "PostgreSQL: ⚠️ Starting up..."
     fi
-    
+
     # Check Redis
     if docker-compose exec -T redis redis-cli ping > /dev/null 2>&1; then
         print_status "Redis: ✅ Healthy"
@@ -104,7 +104,7 @@ check_health() {
 # Function to view logs
 view_logs() {
     local service=${1:-""}
-    
+
     if [ -z "$service" ]; then
         print_header "Viewing All Service Logs"
         docker-compose logs -f
@@ -117,12 +117,12 @@ view_logs() {
 # Function to backup database
 backup_database() {
     local backup_file=${1:-"backup_$(date +%Y%m%d_%H%M%S).sql"}
-    
+
     print_header "Backing Up PostgreSQL Database"
     print_status "Creating backup: $backup_file"
-    
+
     docker-compose exec -T postgres pg_dump -U app_user azure_app_service_db > "$backup_file"
-    
+
     if [ $? -eq 0 ]; then
         print_status "Backup created successfully: $backup_file"
     else
@@ -134,23 +134,23 @@ backup_database() {
 # Function to restore database
 restore_database() {
     local backup_file=${1:-""}
-    
+
     if [ -z "$backup_file" ]; then
         print_error "Please specify a backup file to restore"
         echo "Usage: $0 restore <backup_file.sql>"
         exit 1
     fi
-    
+
     if [ ! -f "$backup_file" ]; then
         print_error "Backup file not found: $backup_file"
         exit 1
     fi
-    
+
     print_header "Restoring PostgreSQL Database"
     print_warning "This will overwrite the current database!"
     read -p "Are you sure? (y/N): " -n 1 -r
     echo
-    
+
     if [[ $REPLY =~ ^[Yy]$ ]]; then
         print_status "Restoring from: $backup_file"
         docker-compose exec -T postgres psql -U app_user -d azure_app_service_db < "$backup_file"
@@ -166,7 +166,7 @@ cleanup() {
     print_warning "This will remove all containers, volumes, and data!"
     read -p "Are you sure? (y/N): " -n 1 -r
     echo
-    
+
     if [[ $REPLY =~ ^[Yy]$ ]]; then
         docker-compose down -v
         docker system prune -f
@@ -180,7 +180,7 @@ cleanup() {
 show_status() {
     print_header "Service Status"
     docker-compose ps
-    
+
     echo
     print_header "Connection Information"
     echo "PostgreSQL: postgresql://app_user:app_password@localhost:5432/azure_app_service_db"

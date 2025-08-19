@@ -5,7 +5,6 @@ from ..logger.logger_strategies.logger_strategy import LoggerStrategy
 
 
 def time_middleware(context: Context, next: Next, logger: LoggerStrategy):
-
     start = time.time()
     logger.info("[TIME] Start timing...")
     result = next()

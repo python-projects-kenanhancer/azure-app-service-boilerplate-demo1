@@ -179,9 +179,9 @@ brew install asdf
 1. Configure application settings:
 
    **Option A: Using config.json (Currently Active)**
-   
+
    The application is configured to use `config.json` by default. You can modify this file to change settings:
-   
+
    ```json
    {
      "project_env": "local",
@@ -196,9 +196,9 @@ brew install asdf
    ```
 
    **Option B: Using .env file**
-   
+
    Create a `.env` file in the root directory:
-   
+
    ```bash
    PROJECT_ENV=local
    DEFAULT_NAME=World
@@ -211,7 +211,7 @@ brew install asdf
    AZURE_KEYVAULT_URL=https://app-keyvault-dev.vault.azure.net/
    AZURE_STORAGE_ACCOUNT_URL=https://ovokenanboilerplatedevstorage.blob.core.windows.net/
    ```
-   
+
    Note: If you want to use `.env`, you'll need to update `src/infrastructure/dependency_injection_configurations/build_di_container.py` to use `EnvConfigLoaderArgs` instead of `JsonConfigLoaderArgs`.
 
 1. Create and Activate Virtual Environment:

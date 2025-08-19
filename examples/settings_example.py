@@ -3,7 +3,6 @@
 Example script demonstrating how to use the refactored settings with development.yml
 """
 
-import os
 import sys
 from pathlib import Path
 
@@ -22,7 +21,7 @@ def main():
     try:
         print("1. Loading settings from development.yml:")
         settings = load_settings_from_development_yml("development.yml")
-        print(f"   ✅ Successfully loaded settings")
+        print("   ✅ Successfully loaded settings")
         print(f"   - Project environment: {settings.project_env}")
         print(f"   - Default name: {settings.default_name}")
         print(f"   - Web framework: {settings.web_framework}")
@@ -77,7 +76,7 @@ def main():
     print("2. Loading settings with fallback:")
     try:
         settings = load_settings_with_fallback(primary_file="development.yml", fallback_file="config.json")
-        print(f"   ✅ Successfully loaded settings with fallback")
+        print("   ✅ Successfully loaded settings with fallback")
         print(f"   - Using default settings: {settings.default_name}")
     except Exception as e:
         print(f"   ❌ Error loading settings with fallback: {e}")
@@ -87,7 +86,7 @@ def main():
     # Example 3: Create settings with default values
     print("3. Creating settings with default values:")
     default_settings = Settings()
-    print(f"   ✅ Created default settings")
+    print("   ✅ Created default settings")
     print(f"   - Project environment: {default_settings.project_env}")
     print(f"   - Default name: {default_settings.default_name}")
     print(f"   - Web framework: {default_settings.web_framework}")

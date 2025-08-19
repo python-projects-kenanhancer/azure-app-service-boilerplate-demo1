@@ -21,11 +21,11 @@ dependencies = [
     "google-cloud-secret-manager>=2.24.0",
     "google-cloud-storage>=3.2.0",
     "cloudevents>=1.12.0",
-    "fastapi>=0.116.1",
+    "flask>=3.1.1",
     "uvicorn>=0.35.0",
     "psutil>=5.9.0",
     "pyjwt>=2.8.0",
-    "redis>=5.0.0",
+    "redis>=6.4.0",
     "sqlalchemy>=2.0.0",
     "psycopg2-binary>=2.9.0",
 ]
@@ -33,14 +33,13 @@ dependencies = [
 # Development dependencies group
 [dependency-groups]
 dev = [
-    "black>=24.10.0",
-    "isort>=5.13.2",
-    "mdformat>=0.7.21",
-    "pre-commit>=4.0.1",
-    "pre-commit-hooks>=5.0.0",
-    "pytest>=8.3.4",
+    "pytest>=8.2.0",
+    "pytest-cov>=5.0.0",
     "pytest-xdist>=3.6.1",
-    "ruff>=0.9.1",
+    "mypy>=1.10.0",
+    "ruff>=0.12.8",
+    "pre-commit>=4.3.0",
+    "mdformat>=0.7.22",
 ]
 
 [project.scripts]
@@ -56,60 +55,30 @@ build-backend = "hatchling.build" # Build backend to use
 [tool.hatch.build.targets.wheel]
 packages = ["src"] # Source code location
 
-# Testing configuration
-[tool.pytest.ini_options]
-pythonpath = ["./src"] # Where to find source code
-testpaths = ["tests"] # Where to find tests
-norecursedirs = [".venv", ".pytest_cache", "__pycache__", ".vscode"] # Directories to ignore
-addopts = "-n 4" # Pytest options
-# env = []
-
-# Code formatting configuration
-[tool.black]
-line-length = 130
-target-version = ["py311"]
-exclude = '''
-/(
-    \.git
-  | \.venv
-  | \.mypy_cache
-  | \.pytest_cache
-  | __pycache__
-  | .vscode
-  | .idea
-  | build
-  | dist
-  | migrations
-  | .tox
-  | .eggs
-  | .git
-  | .hg
-  | .nox
-  | .venv
-)/
-'''
-
-# Import sorting configuration
-[tool.isort]
-profile = "black"
-line_length = 130
-known_first_party = ["src"]
-multi_line_output = 3
-include_trailing_comma = true
-split_on_trailing_comma = true
-force_grid_wrap = 0
-use_parentheses = true
-ensure_newline_before_comments = true
-
-# Linting configuration
+# -----------------------------
+# Linting configuration (Ruff)
+# -----------------------------
 [tool.ruff]
 line-length = 130
 
-# Move fixable configurations to lint section
+# Rules & fixes (Ruff >= 0.4.0 supports the [tool.ruff.lint] table)
 [tool.ruff.lint]
-select = ["F", "E", "W", "C90"]
-fixable = ["F401", "F841"]
-ignore = ["E501", "F403", "F405"]  # Disable line-length, F403 and F405 to ignore list
+select = ["F", "E", "W", "C90", "I"]
+fixable = ["ALL"]
+ignore = [
+    "E501", # Line too long (handled by formatter)
+    "F403", # Wildcard imports (from module import *)
+    "F405", # Import may be undefined, or defined in star imports
+    "F821", # Undefined name (for reveal_type)
+    "D100", # Missing docstring in public module
+    "D101", # Missing docstring in public class
+    "D102", # Missing docstring in public method
+    "D103", # Missing docstring in public function
+    "D104", # Missing docstring in public package
+    "D105", # Missing docstring in magic method
+    "D106", # Missing docstring in public nested class
+    "D107", # Missing docstring in __init__
+]
 exclude = [
     ".git",
     ".venv",
@@ -117,7 +86,6 @@ exclude = [
     "build",
     "dist",
     "migrations",
-    "tests",
     ".pytest_cache",
     ".vscode",
     ".idea",
@@ -126,4 +94,57 @@ exclude = [
     ".hg",
     ".mypy_cache",
     ".nox",
+]
+
+[tool.ruff.lint.isort]
+known-first-party = ["hapie_api_sdk"]
+
+
+# -----------------------------
+# Static typing (mypy)
+# -----------------------------
+[tool.mypy]
+python_version = "3.13"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+#mypy_path = ["src"]  # Uncomment if needed for module resolution
+
+# -----------------------------
+# Pytest configuration
+# -----------------------------
+[tool.pytest.ini_options]
+pythonpath = ["./src"]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = [
+    "--cov=src/hapie_api_sdk",
+    "--cov-report=term-missing",
+    "--cov-report=html",
+    "--cov-report=xml",
+    "-n 4",
+]
+norecursedirs = [".venv", ".pytest_cache", "__pycache__", ".vscode"]
+
+# -----------------------------
+# Coverage configuration
+# -----------------------------
+[tool.coverage.run]
+source = ["src/hapie_api_sdk"]
+omit = ["*/tests/*", "*/test_*"]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "if self.debug:",
+    "if settings.DEBUG",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if 0:",
+    "if __name__ == '__main__':",
+    "class .*\\bProtocol\\):",
+    "@(abc\\.)?abstractmethod",
 ]
