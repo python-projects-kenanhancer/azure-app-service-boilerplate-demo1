@@ -24,10 +24,12 @@ except ImportError:
 def redis_cache_middleware(context: Context, next: Next, logger: LoggerStrategy):
     """Middleware to handle Redis cache operations for user and org context."""
 
+    # FAIL FAST - Check Redis availability once at the beginning
     if not REDIS_AVAILABLE:
         logger.error("[REDIS_CACHE] Redis package not available")
         return {"error": "Redis service not available", "status": 503}
 
+    # From this point forward, Redis IS available - no more checks needed
     logger.info(f"[REDIS_CACHE] Processing {context.func.__name__}")
 
     # Get session ID from JWT authentication middleware
@@ -64,18 +66,13 @@ def redis_cache_middleware(context: Context, next: Next, logger: LoggerStrategy)
         return result
 
     except Exception as e:
-        if REDIS_AVAILABLE and hasattr(e, "__class__") and "Redis" in e.__class__.__name__:
-            logger.error(f"[REDIS_CACHE] Redis error: {str(e)}")
-            return {"error": "Cache service unavailable", "status": 503}
-        else:
-            logger.error(f"[REDIS_CACHE] Cache middleware error: {str(e)}")
-            return {"error": "Internal server error", "status": 500}
+        logger.error(f"[REDIS_CACHE] Cache middleware error: {str(e)}")
+        return {"error": "Internal server error", "status": 500}
 
 
 def _get_redis_client(context: Context, logger: LoggerStrategy) -> Optional[Any]:
     """Get Redis client from context or create new one."""
-    if not REDIS_AVAILABLE:
-        return None
+    # No REDIS_AVAILABLE check needed - this function is only called after we've verified Redis is available
 
     # Try to get Redis client from context first
     redis_client = context.kwargs.get("redis_client")
@@ -89,10 +86,6 @@ def _get_redis_client(context: Context, logger: LoggerStrategy) -> Optional[Any]
 
     # Create new Redis client
     try:
-        # In production, get these from environment variables or configuration
-        if not REDIS_AVAILABLE:
-            return None
-
         redis_client = redis.Redis(  # type: ignore[attr-defined]
             host="localhost",  # Replace with your Redis host
             port=6379,  # Replace with your Redis port
@@ -114,6 +107,8 @@ def _get_redis_client(context: Context, logger: LoggerStrategy) -> Optional[Any]
 
 def _get_user_context(redis_client: Any, session_id: str, logger: LoggerStrategy) -> Optional[Dict[str, Any]]:
     """Get user context from Redis cache."""
+    # No REDIS_AVAILABLE check needed - this function is only called after we've verified Redis is available
+
     try:
         user_key = f"user_context:{session_id}"
         user_data = redis_client.get(user_key)
@@ -136,6 +131,8 @@ def _get_user_context(redis_client: Any, session_id: str, logger: LoggerStrategy
 
 def _get_org_context(redis_client: Any, session_id: str, logger: LoggerStrategy) -> Optional[Dict[str, Any]]:
     """Get organization context from Redis cache."""
+    # No REDIS_AVAILABLE check needed - this function is only called after we've verified Redis is available
+
     try:
         org_key = f"org_context:{session_id}"
         org_data = redis_client.get(org_key)
@@ -160,7 +157,8 @@ def create_user_context(
     redis_client: Any, session_id: str, user_data: Dict[str, Any], ttl: int = 3600, logger: Optional[LoggerStrategy] = None
 ) -> bool:
     """Create user context in Redis cache (utility function for login)."""
-    if not REDIS_AVAILABLE or not redis_client:
+    # Only check if redis_client is valid (not None or invalid)
+    if not redis_client:
         return False
 
     try:
@@ -181,7 +179,8 @@ def create_org_context(
     redis_client: Any, session_id: str, org_data: Dict[str, Any], ttl: int = 3600, logger: Optional[LoggerStrategy] = None
 ) -> bool:
     """Create organization context in Redis cache (utility function for login)."""
-    if not REDIS_AVAILABLE or not redis_client:
+    # Only check if redis_client is valid (not None or invalid)
+    if not redis_client:
         return False
 
     try:
@@ -200,7 +199,8 @@ def create_org_context(
 
 def invalidate_session(redis_client: Any, session_id: str, logger: Optional[LoggerStrategy] = None) -> bool:
     """Invalidate session by removing context from Redis (utility function for logout)."""
-    if not REDIS_AVAILABLE or not redis_client:
+    # Only check if redis_client is valid (not None or invalid)
+    if not redis_client:
         return False
 
     try:
