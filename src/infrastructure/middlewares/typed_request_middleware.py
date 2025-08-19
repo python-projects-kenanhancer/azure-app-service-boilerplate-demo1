@@ -65,13 +65,24 @@ def _extract_json_from_fastapi_request(request: FastAPIRequest) -> Dict[str, Any
             pass
 
     # Fallback: try to get JSON from request object
-    try:
-        if hasattr(request, "_json"):
-            return request._json
-        elif hasattr(request, "json"):
-            return request.json()
-    except Exception:
-        pass
+    # try:
+    #     if hasattr(request, "_json"):
+    #         return request._json
+    #     elif hasattr(request, "json"):
+    #         result = request.json()
+    #         # Handle case where json() returns a coroutine
+    #         if hasattr(result, "__await__"):
+    #             # This is a coroutine, but we can't await it in a sync function
+    #             # Return empty dict as fallback
+    #             return {}
+    #         # Ensure result is a dictionary before returning
+    #         if isinstance(result, dict):
+    #             return result
+    #         else:
+    #             # If result is not a dict, return empty dict
+    #             return {}
+    # except Exception:
+    #     pass
 
     return {}
 
