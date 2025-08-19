@@ -9,15 +9,17 @@ from .config_provider import ConfigProvider
 class AzureKeyVaultConfigProvider(ConfigProvider):
     """Azure Key Vault configuration provider"""
 
-    def __init__(self, vault_url: str, credential: Optional[DefaultAzureCredential] = None):
+    def __init__(self, vault_url: str, secret_name: str, credential: Optional[DefaultAzureCredential] = None):
         """
         Initialize Azure Key Vault config provider
 
         Args:
             vault_url: The URL of the Azure Key Vault
+            secret_name: The name of the secret to retrieve
             credential: Azure credential for authentication
         """
         self.vault_url = vault_url
+        self.secret_name = secret_name
         self.credential = credential or DefaultAzureCredential()
         self.client = SecretClient(vault_url=vault_url, credential=self.credential)
 
@@ -36,7 +38,9 @@ class AzureKeyVaultConfigProvider(ConfigProvider):
             # Assuming the secret value is JSON or can be parsed as key-value pairs
             import json
 
-            return json.loads(secret.value)
+            if secret.value:
+                return json.loads(secret.value)
+            return {}
         except Exception as e:
             raise ValueError(f"Failed to load config from Azure Key Vault: {e}")
 
@@ -52,6 +56,20 @@ class AzureKeyVaultConfigProvider(ConfigProvider):
         """
         try:
             secret = self.client.get_secret(secret_name)
-            return secret.value
+            return secret.value or ""
         except Exception as e:
             raise ValueError(f"Failed to get secret '{secret_name}' from Azure Key Vault: {e}")
+
+    def get_config(self) -> str | None:
+        """
+        Get configuration from Azure Key Vault.
+        This method returns the raw secret value as a string.
+
+        Returns:
+            Raw secret value as string, or None if failed
+        """
+        try:
+            secret = self.client.get_secret(self.secret_name)
+            return secret.value
+        except Exception as e:
+            raise ValueError(f"Failed to get config from Azure Key Vault: {e}")

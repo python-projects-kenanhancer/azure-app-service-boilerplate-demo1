@@ -1,4 +1,5 @@
-from typing import Any, Dict, Optional
+import logging
+from typing import Optional
 
 from azure.identity import DefaultAzureCredential
 from azure.storage.blob import BlobServiceClient
@@ -7,79 +8,52 @@ from .config_provider import ConfigProvider
 
 
 class AzureStorageConfigProvider(ConfigProvider):
-    """Azure Storage configuration provider"""
+    """
+    Provides configuration from a file stored in Azure Storage.
+    Returns the file content as a raw string.
+    """
 
-    def __init__(self, account_url: str, credential: Optional[DefaultAzureCredential] = None):
+    def __init__(
+        self, account_url: str, container_name: str, blob_name: str, credential: Optional[DefaultAzureCredential] = None
+    ):
         """
         Initialize Azure Storage config provider
 
         Args:
             account_url: The Azure Storage account URL
+            container_name: The container name
+            blob_name: The blob name
             credential: Azure credential for authentication
         """
         self.account_url = account_url
+        self.container_name = container_name
+        self.blob_name = blob_name
         self.credential = credential or DefaultAzureCredential()
         self.client = BlobServiceClient(account_url=account_url, credential=self.credential)
+        self.logger = logging.getLogger(self.__class__.__name__)
 
-    def load_config(self, config_path: str) -> Dict[str, Any]:
+    def get_config(self) -> str | None:
         """
-        Load configuration from Azure Storage Blob
-
-        Args:
-            config_path: The blob path in format "container_name/blob_name"
-
-        Returns:
-            Dictionary containing the configuration
+        Fetches the raw config data from a file in Azure Storage.
         """
         try:
-            # Parse container and blob name from config_path
-            if "/" not in config_path:
-                raise ValueError("config_path must be in format 'container_name/blob_name'")
+            container_client = self.client.get_container_client(self.container_name)
+            blob_client = container_client.get_blob_client(self.blob_name)
 
-            container_name, blob_name = config_path.split("/", 1)
-            container_client = self.client.get_container_client(container_name)
-            blob_client = container_client.get_blob_client(blob_name)
+            # Check if blob exists
+            if not blob_client.exists():
+                self.logger.error(
+                    f"Blob '{self.blob_name}' does not exist in container '{self.container_name}' in storage account."
+                )
+                return None
 
-            # Download the blob content
             blob_data = blob_client.download_blob()
-            content = blob_data.readall().decode("utf-8")
+            data = blob_data.readall().decode("utf-8")
 
-            # Parse content based on file extension
-            if blob_name.endswith(".json"):
-                import json
-
-                return json.loads(content)
-            elif blob_name.endswith(".yaml") or blob_name.endswith(".yml"):
-                import yaml
-
-                return yaml.safe_load(content)
-            else:
-                # Assume it's a simple key-value format
-                config = {}
-                for line in content.split("\n"):
-                    if "=" in line:
-                        key, value = line.split("=", 1)
-                        config[key.strip()] = value.strip()
-                return config
-
+            self.logger.info(f"Successfully fetched config file from Azure Storage: {self.container_name}/{self.blob_name}")
+            return data
         except Exception as e:
-            raise ValueError(f"Failed to load config from Azure Storage: {e}")
-
-    def get_blob_content(self, container_name: str, blob_name: str) -> str:
-        """
-        Get content from a specific blob
-
-        Args:
-            container_name: The container name
-            blob_name: The blob name
-
-        Returns:
-            The blob content as string
-        """
-        try:
-            container_client = self.client.get_container_client(container_name)
-            blob_client = container_client.get_blob_client(blob_name)
-            blob_data = blob_client.download_blob()
-            return blob_data.readall().decode("utf-8")
-        except Exception as e:
-            raise ValueError(f"Failed to get blob content '{container_name}/{blob_name}': {e}")
+            self.logger.exception(
+                f"An unexpected error occurred while fetching config from Azure Storage: {self.container_name}/{self.blob_name}: {e}"
+            )
+            return None

@@ -139,9 +139,14 @@ class ConfigLoaderFactory:
         import os
 
         vault_url = os.getenv(config_loader_args.vault_url_env_var)
+        secret_name = os.getenv(config_loader_args.secret_name_env_var)
         if not vault_url:
             raise ValueError(f"Environment variable {config_loader_args.vault_url_env_var} not set")
-        config_provider = AzureKeyVaultConfigProvider(vault_url=vault_url, credential=config_loader_args.credential)
+        if not secret_name:
+            raise ValueError(f"Environment variable {config_loader_args.secret_name_env_var} not set")
+        config_provider = AzureKeyVaultConfigProvider(
+            vault_url=vault_url, secret_name=secret_name, credential=config_loader_args.credential
+        )
         env_processor = DefaultEnvConfigProcessor()
         return EnvConfigLoader(config_provider=config_provider, env_processor=env_processor)
 
@@ -151,9 +156,20 @@ class ConfigLoaderFactory:
         import os
 
         account_url = os.getenv(config_loader_args.account_url_env_var)
+        blob_path = os.getenv(config_loader_args.blob_path_env_var)
         if not account_url:
             raise ValueError(f"Environment variable {config_loader_args.account_url_env_var} not set")
-        config_provider = AzureStorageConfigProvider(account_url=account_url, credential=config_loader_args.credential)
+        if not blob_path:
+            raise ValueError(f"Environment variable {config_loader_args.blob_path_env_var} not set")
+
+        # Parse container and blob name from blob_path (format: "container_name/blob_name")
+        if "/" not in blob_path:
+            raise ValueError(f"blob_path must be in format 'container_name/blob_name', got: {blob_path}")
+        container_name, blob_name = blob_path.split("/", 1)
+
+        config_provider = AzureStorageConfigProvider(
+            account_url=account_url, container_name=container_name, blob_name=blob_name, credential=config_loader_args.credential
+        )
         env_processor = DefaultEnvConfigProcessor()
         return EnvConfigLoader(config_provider=config_provider, env_processor=env_processor)
 
