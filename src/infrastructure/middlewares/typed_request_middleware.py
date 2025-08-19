@@ -51,7 +51,7 @@ def _extract_json_from_fastapi_request(request: FastAPIRequest) -> Dict[str, Any
 
                 parsed_body_data: Any = asyncio.run(body)
             else:
-                parsed_body_data: Any = body
+                parsed_body_data = body
 
             # Parse body data if it exists
             if parsed_body_data:
@@ -86,18 +86,8 @@ def _extract_request_data(request) -> tuple[Dict[str, Any], Dict[str, Any], Dict
         raise TypeError(f"Unsupported request type: {type(request)}")
 
 
-def typed_request_middleware(context: Context, next: Next):
-    """Middleware that handles both Flask Request and typed model input."""
-    func = context.func
-    args = context.args
-
-    # 1. Get function signature info
-    sig = inspect.signature(func)
-    parameters = list(sig.parameters.values())
-    if not parameters:
-        raise TypeError(f"Function {func.__name__} has no parameters. Cannot infer typed request parameter.")
-
-    # 2. Detect if this is a class method and determine the first non-self parameter
+def _detect_class_method_and_first_param(func, parameters):
+    """Detect if this is a class method and determine the first non-self parameter."""
     is_class_method = False
     first_typed_param = None
 
@@ -110,7 +100,7 @@ def typed_request_middleware(context: Context, next: Next):
             first_typed_param = parameters[1]
         else:
             # Only 'self' parameter, nothing to process
-            return next()
+            return is_class_method, None
     else:
         # 2. Check if the first parameter is named 'self' (Python convention)
         # This handles unbound methods and pipeline-wrapped class methods
@@ -129,17 +119,11 @@ def typed_request_middleware(context: Context, next: Next):
             # Regular function or static method
             first_typed_param = parameters[0]
 
-    # Ensure we found a valid parameter
-    if first_typed_param is None:
-        raise TypeError(f"Function {func.__name__} has no valid parameters to process.")
+    return is_class_method, first_typed_param
 
-    # 3. Check type annotation of the first typed parameter
-    annotated_type = first_typed_param.annotation
-    if annotated_type is inspect._empty:
-        # If no type annotation, skip processing - this method doesn't need typed request conversion
-        return next()
 
-    # 4. Check arguments at runtime
+def _get_request_argument(args, is_class_method):
+    """Get the request argument from the function arguments."""
     if not args:
         raise ValueError("No arguments provided at runtime.")
 
@@ -147,14 +131,17 @@ def typed_request_middleware(context: Context, next: Next):
     if is_class_method:
         if len(args) < 2:
             raise ValueError("Class method called without required arguments.")
-        maybe_request = args[1]
+        return args[1]
     else:
         # This is a regular function or unbound method
-        maybe_request = args[0]
+        return args[0]
 
+
+def _validate_and_extract_request(maybe_request, annotated_type):
+    """Validate request type and extract data."""
     # If the argument is already the correct type, pass it through
     if isinstance(maybe_request, annotated_type):
-        return next()
+        return None  # Signal to pass through
 
     # If it's not a Request type, raise error immediately
     if not isinstance(maybe_request, (FlaskRequest, FastAPIRequest)):
@@ -177,6 +164,46 @@ def typed_request_middleware(context: Context, next: Next):
         query_data = {}
     if not isinstance(header_data, dict):
         header_data = {}
+
+    return json_data, query_data, header_data
+
+
+def typed_request_middleware(context: Context, next: Next):
+    """Middleware that handles both Flask Request and typed model input."""
+    func = context.func
+    args = context.args
+
+    # 1. Get function signature info
+    sig = inspect.signature(func)
+    parameters = list(sig.parameters.values())
+    if not parameters:
+        raise TypeError(f"Function {func.__name__} has no parameters. Cannot infer typed request parameter.")
+
+    # 2. Detect if this is a class method and determine the first non-self parameter
+    is_class_method, first_typed_param = _detect_class_method_and_first_param(func, parameters)
+
+    # Ensure we found a valid parameter
+    if first_typed_param is None:
+        raise TypeError(f"Function {func.__name__} has no valid parameters to process.")
+
+    # 3. Check type annotation of the first typed parameter
+    annotated_type = first_typed_param.annotation
+    if annotated_type is inspect._empty:
+        # If no type annotation, skip processing - this method doesn't need typed request conversion
+        return next()
+
+    # 4. Get request argument at runtime
+    maybe_request = _get_request_argument(args, is_class_method)
+
+    # 5. Validate and extract request data
+    result = _validate_and_extract_request(maybe_request, annotated_type)
+
+    # If result is None, it means we should pass through (already correct type)
+    if result is None:
+        return next()
+
+    # Otherwise, we have extracted data to work with
+    json_data, query_data, header_data = result
 
     merged_data = {**json_data, **query_data, **header_data}
 
